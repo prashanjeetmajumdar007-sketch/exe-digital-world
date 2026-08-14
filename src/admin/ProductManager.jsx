@@ -71,6 +71,7 @@ export default function ProductManager({ onSelectProduct }) {
   const [products, setProducts] = useState(getProducts());
   const [isEditing, setIsEditing] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const categories = getCategories();
 
@@ -100,6 +101,11 @@ export default function ProductManager({ onSelectProduct }) {
   };
 
   const [formData, setFormData] = useState(emptyForm);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 4000);
+  };
 
   const handleOpenAdd = () => {
     setFormData(emptyForm);
@@ -159,6 +165,7 @@ export default function ProductManager({ onSelectProduct }) {
         
         setFormData({ ...formData, demoVideos: updatedDemos });
         setIsExtracting(false);
+        showToast('✅ MP4 Video Uploaded & First Frame Captured!');
       };
       reader.readAsDataURL(file);
     }
@@ -190,17 +197,24 @@ export default function ProductManager({ onSelectProduct }) {
     };
     saveProduct(duplicated);
     setProducts(getProducts());
+    showToast('📋 Product Duplicated Successfully!');
   };
 
   const handleDelete = (id) => {
     if (confirm('Are you sure you want to delete this product?')) {
       deleteProduct(id);
       setProducts(getProducts());
+      showToast('🗑️ Product Deleted Successfully!');
     }
   };
 
   const handleFormSubmit = (e, statusOverride = null) => {
     e.preventDefault();
+
+    if (!formData.name || formData.name.trim().length === 0) {
+      alert('Please enter a Product Name!');
+      return;
+    }
 
     const featuresArr = formData.featuresStr.split('\n').filter(f => f.trim().length > 0);
 
@@ -224,14 +238,23 @@ export default function ProductManager({ onSelectProduct }) {
       status: statusOverride || formData.status || 'published'
     };
 
-    saveProduct(payload);
-    setProducts(getProducts());
+    const updatedList = saveProduct(payload);
+    setProducts(updatedList);
     setIsEditing(false);
+    showToast(`🎉 Product "${formData.name}" Published Successfully!`);
   };
 
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="space-y-8 animate-fadeIn relative">
       
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 z-50 px-5 py-3 rounded-2xl bg-slate-900 border border-emerald-500/50 text-emerald-400 font-bold text-xs shadow-2xl flex items-center gap-2 animate-bounce">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          {toastMessage}
+        </div>
+      )}
+
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -566,8 +589,9 @@ export default function ProductManager({ onSelectProduct }) {
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-extrabold shadow-glow-cyan"
+                className="px-6 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-extrabold shadow-glow-cyan flex items-center gap-1.5"
               >
+                <CheckCircle2 className="w-4 h-4 text-black" />
                 Save & Publish Product
               </button>
             </div>

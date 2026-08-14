@@ -240,12 +240,50 @@ export const DEFAULT_OFFERS = [
   }
 ];
 
-// Storage Initialization Helper
+// Safe LocalStorage Saver Helper with Quota Protection
+export function safeSetItem(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+    return true;
+  } catch (err) {
+    console.warn(`LocalStorage Quota Exceeded for ${key}, compressing payload...`, err);
+    try {
+      // If quota exceeded due to huge base64 strings, trim heavy base64 video URLs gracefully
+      const sanitized = JSON.parse(JSON.stringify(data)).map(prod => {
+        if (prod.demoVideos) {
+          prod.demoVideos = prod.demoVideos.map(v => {
+            if (v.url && v.url.length > 300000 && v.url.startsWith('data:video')) {
+              // Store compact preview marker if payload is super massive
+              return { ...v, url: v.url.substring(0, 100000) };
+            }
+            return v;
+          });
+        }
+        return prod;
+      });
+      localStorage.setItem(key, JSON.stringify(sanitized));
+      return true;
+    } catch (e) {
+      console.error('Final LocalStorage Error:', e);
+      return false;
+    }
+  }
+}
+
+// Storage Initialization Helper (ONLY initialize if NOT set yet!)
 export function initStorage() {
-  localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
-  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
-  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(DEFAULT_REVIEWS));
-  localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(DEFAULT_OFFERS));
+  if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
+    localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) {
+    localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(DEFAULT_REVIEWS));
+  }
+  if (!localStorage.getItem(STORAGE_KEYS.OFFERS)) {
+    localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(DEFAULT_OFFERS));
+  }
   if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
   }
@@ -255,7 +293,11 @@ export function initStorage() {
 
 export function getProducts() {
   initStorage();
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
+  } catch (e) {
+    return DEFAULT_PRODUCTS;
+  }
 }
 
 export function getProductBySlug(slug) {
@@ -266,32 +308,43 @@ export function getProductBySlug(slug) {
 export function saveProduct(productData) {
   const products = getProducts();
   let updated;
+
+  // Generate unique slug if empty or missing
+  const generatedSlug = productData.slug
+    ? productData.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    : (productData.name || 'digital-product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
   if (productData.id) {
-    updated = products.map(p => p.id === productData.id ? { ...p, ...productData } : p);
+    updated = products.map(p => p.id === productData.id ? { ...p, ...productData, slug: generatedSlug } : p);
   } else {
     const newProduct = {
       ...productData,
       id: `prod-${Date.now()}`,
-      slug: productData.slug || productData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+      slug: generatedSlug,
       rating: productData.rating || 5.0,
       reviewsCount: productData.reviewsCount || 0,
       status: productData.status || 'published'
     };
     updated = [newProduct, ...products];
   }
-  localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+
+  safeSetItem(STORAGE_KEYS.PRODUCTS, updated);
   return updated;
 }
 
 export function deleteProduct(productId) {
   const products = getProducts().filter(p => p.id !== productId);
-  localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+  safeSetItem(STORAGE_KEYS.PRODUCTS, products);
   return products;
 }
 
 export function getCategories() {
   initStorage();
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.CATEGORIES) || '[]');
+  } catch (e) {
+    return DEFAULT_CATEGORIES;
+  }
 }
 
 export function saveCategory(categoryData) {
@@ -307,13 +360,18 @@ export function saveCategory(categoryData) {
     };
     updated = [...categories, newCat];
   }
-  localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated));
+  safeSetItem(STORAGE_KEYS.CATEGORIES, updated);
   return updated;
 }
 
 export function getReviews(productId = null) {
   initStorage();
-  const reviews = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
+  let reviews = [];
+  try {
+    reviews = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
+  } catch (e) {
+    reviews = DEFAULT_REVIEWS;
+  }
   if (productId) {
     return reviews.filter(r => r.productId === productId && r.status === 'published');
   }
@@ -321,7 +379,7 @@ export function getReviews(productId = null) {
 }
 
 export function saveReview(reviewData) {
-  const reviews = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]');
+  const reviews = getReviews();
   let updated;
   if (reviewData.id) {
     updated = reviews.map(r => r.id === reviewData.id ? { ...r, ...reviewData } : r);
@@ -334,19 +392,23 @@ export function saveReview(reviewData) {
     };
     updated = [newReview, ...reviews];
   }
-  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(updated));
+  safeSetItem(STORAGE_KEYS.REVIEWS, updated);
   return updated;
 }
 
 export function deleteReview(reviewId) {
-  const reviews = JSON.parse(localStorage.getItem(STORAGE_KEYS.REVIEWS) || '[]').filter(r => r.id !== reviewId);
-  localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(reviews));
+  const reviews = getReviews().filter(r => r.id !== reviewId);
+  safeSetItem(STORAGE_KEYS.REVIEWS, reviews);
   return reviews;
 }
 
 export function getOffers() {
   initStorage();
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.OFFERS) || '[]');
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.OFFERS) || '[]');
+  } catch (e) {
+    return DEFAULT_OFFERS;
+  }
 }
 
 export function getOfferBySlug(slug) {
@@ -366,21 +428,25 @@ export function saveOffer(offerData) {
       slug: offerData.slug || offerData.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
       status: offerData.status || 'published'
     };
-    updated = [newOffer, ...offers];
+    updated = [...offers, newOffer];
   }
-  localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(updated));
+  safeSetItem(STORAGE_KEYS.OFFERS, updated);
   return updated;
 }
 
 export function deleteOffer(offerId) {
   const offers = getOffers().filter(o => o.id !== offerId);
-  localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(offers));
+  safeSetItem(STORAGE_KEYS.OFFERS, offers);
   return offers;
 }
 
 export function getOrders() {
   initStorage();
-  return JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]');
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || '[]');
+  } catch (e) {
+    return [];
+  }
 }
 
 export function createOrder(orderPayload) {
@@ -393,7 +459,7 @@ export function createOrder(orderPayload) {
     costBasis: orderPayload.totalAmount * 0.05
   };
   const updated = [newOrder, ...orders];
-  localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
+  safeSetItem(STORAGE_KEYS.ORDERS, updated);
   return newOrder;
 }
 
