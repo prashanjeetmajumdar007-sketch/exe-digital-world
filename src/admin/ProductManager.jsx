@@ -24,8 +24,8 @@ export default function ProductManager({ onSelectProduct }) {
     salePrice: 499,
     discount: 90,
     demoVideos: [
-      { id: 'v1', title: 'Demo Video #1', url: 'https://assets.mixkit.co/videos/preview/mixkit-chart-bars-on-a-digital-screen-41619-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80' },
-      { id: 'v2', title: 'Demo Video #2', url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=600&q=80' }
+      { id: 'v1', title: 'Demo Video #1', url: 'https://assets.mixkit.co/videos/preview/mixkit-chart-bars-on-a-digital-screen-41619-large.mp4' },
+      { id: 'v2', title: 'Demo Video #2', url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4' }
     ],
     deliveryLink: 'https://drive.google.com/drive/folders/exe-digital-product-access',
     faqStr: 'Q: How do I access my product after purchase?\nA: Instant automatic access via Google Drive link immediately after checkout.\n\nQ: Does it include lifetime updates?\nA: Yes, all buyers receive free lifetime updates.',
@@ -65,7 +65,7 @@ export default function ProductManager({ onSelectProduct }) {
   const handleDemoVideoChange = (index, field, value) => {
     const updatedDemos = [...(formData.demoVideos || [])];
     if (!updatedDemos[index]) {
-      updatedDemos[index] = { id: `v-${index + 1}`, title: `Demo Reel #${index + 1}`, url: '', thumbnail: '' };
+      updatedDemos[index] = { id: `v-${index + 1}`, title: `Demo Reel #${index + 1}`, url: '' };
     }
     updatedDemos[index][field] = value;
     setFormData({ ...formData, demoVideos: updatedDemos });
@@ -83,18 +83,6 @@ export default function ProductManager({ onSelectProduct }) {
     }
   };
 
-  // Direct Thumbnail Image File Upload from computer
-  const handleDemoThumbnailUpload = (index, e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleDemoVideoChange(index, 'thumbnail', reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleAddDemoVideoField = () => {
     const current = formData.demoVideos || [];
     const nextIdx = current.length + 1;
@@ -102,7 +90,7 @@ export default function ProductManager({ onSelectProduct }) {
       ...formData,
       demoVideos: [
         ...current,
-        { id: `v-${nextIdx}`, title: `Demo Video #${nextIdx}`, url: '', thumbnail: '' }
+        { id: `v-${nextIdx}`, title: `Demo Video #${nextIdx}`, url: '' }
       ]
     });
   };
@@ -170,7 +158,7 @@ export default function ProductManager({ onSelectProduct }) {
             Product Management <span className="text-cyan-400">({products.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Manage Courses, Reels Bundles, E-Books, Direct Video File Uploads & Custom Thumbnails in INR (₹).
+            Manage Courses, Reels Bundles, E-Books, Direct Video Uploads (Auto Video Thumbnails) in INR (₹).
           </p>
         </div>
 
@@ -359,16 +347,16 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
             </div>
 
-            {/* 2. DIRECT DEMO VIDEO FILE UPLOAD SYSTEM (DIRECT FILE UPLOAD DROPZONE) */}
+            {/* 2. DIRECT DEMO VIDEO UPLOAD (AUTOMATIC VIDEO THUMBNAILS - NO SEPARATE THUMBNAIL INPUT) */}
             <div className="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-white flex items-center gap-2">
                     <Video className="w-4 h-4 text-cyan-400" />
-                    2. Demo Videos & Custom Video Thumbnails (Direct Computer File Upload System)
+                    2. Demo Videos (Automatic Video Thumbnail Capture)
                   </h4>
                   <p className="text-xs text-slate-400">
-                    Upload MP4 video files and custom image thumbnails directly from your computer. Videos play inline on the website!
+                    Upload MP4 video files directly from your computer. Video thumbnails are automatically captured from the video's first frame!
                   </p>
                 </div>
                 <button
@@ -377,7 +365,7 @@ export default function ProductManager({ onSelectProduct }) {
                   className="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs flex items-center gap-1 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add Demo Reel Item
+                  Add Demo Reel
                 </button>
               </div>
 
@@ -400,32 +388,31 @@ export default function ProductManager({ onSelectProduct }) {
                       )}
                     </div>
 
-                    {/* Video Title */}
-                    <div>
-                      <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Video Title</label>
-                      <input
-                        type="text"
-                        value={demo.title || ''}
-                        onChange={(e) => handleDemoVideoChange(idx, 'title', e.target.value)}
-                        placeholder="e.g. Price Action Trading Demo"
-                        className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                      />
-                    </div>
-
-                    {/* Direct Upload Dual Dropzone Row */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
                       
-                      {/* Direct MP4 Video File Upload */}
+                      {/* Video Title */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Video Title</label>
+                        <input
+                          type="text"
+                          value={demo.title || ''}
+                          onChange={(e) => handleDemoVideoChange(idx, 'title', e.target.value)}
+                          placeholder="e.g. Premanand Ji Maharaj Satsang Reel"
+                          className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                        />
+                      </div>
+
+                      {/* Direct MP4 Video Upload Dropzone */}
                       <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center gap-2">
                         <Video className="w-6 h-6 text-cyan-400" />
-                        <span className="text-xs font-bold text-white">Direct MP4 Video File Upload</span>
+                        <span className="text-xs font-bold text-white">Upload MP4 Video File</span>
                         <span className="text-[10px] text-slate-400">
-                          {demo.url && demo.url.startsWith('data:') ? '✅ Video File Uploaded Ready' : 'Select MP4, MOV, or WEBM video from computer'}
+                          {demo.url ? '✅ Video Ready (Thumbnail Captured Auto)' : 'Select MP4, MOV, or WEBM video from computer'}
                         </span>
                         
-                        <label className="mt-1 px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-extrabold cursor-pointer flex items-center gap-1.5 transition-all">
-                          <Upload className="w-3.5 h-3.5 text-cyan-400" />
-                          Upload Video File...
+                        <label className="mt-1 px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-extrabold cursor-pointer flex items-center gap-1.5 shadow-glow-cyan">
+                          <Upload className="w-3.5 h-3.5 text-black" />
+                          Browse MP4 Video File...
                           <input
                             type="file"
                             accept="video/*"
@@ -437,32 +424,6 @@ export default function ProductManager({ onSelectProduct }) {
                         {demo.url && (
                           <div className="w-full mt-2 rounded-xl bg-black overflow-hidden border border-slate-800">
                             <video src={demo.url} controls className="w-full h-24 object-cover" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Custom Video Thumbnail Image Upload */}
-                      <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center gap-2">
-                        <ImageIcon className="w-6 h-6 text-purple-400" />
-                        <span className="text-xs font-bold text-white">Custom Video Thumbnail Upload</span>
-                        <span className="text-[10px] text-slate-400">
-                          {demo.thumbnail && demo.thumbnail.startsWith('data:') ? '✅ Thumbnail Uploaded Ready' : 'Select JPG, PNG, or WEBP image from computer'}
-                        </span>
-
-                        <label className="mt-1 px-4 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-extrabold cursor-pointer flex items-center gap-1.5 transition-all">
-                          <Upload className="w-3.5 h-3.5 text-purple-400" />
-                          Upload Thumbnail Image...
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleDemoThumbnailUpload(idx, e)}
-                            className="hidden"
-                          />
-                        </label>
-
-                        {demo.thumbnail && (
-                          <div className="w-full mt-2 rounded-xl bg-black overflow-hidden border border-slate-800 h-24 flex items-center justify-center">
-                            <img src={demo.thumbnail} alt="" className="w-full h-full object-cover" />
                           </div>
                         )}
                       </div>
