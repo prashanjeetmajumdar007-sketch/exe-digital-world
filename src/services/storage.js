@@ -23,10 +23,10 @@ export const DEFAULT_CATEGORIES = [
   { id: 'cat-3', name: 'E-Books & Guides', slug: 'ebooks', active: true, icon: 'BookOpen' },
   { id: 'cat-4', name: 'Software & Digital Tools', slug: 'software', active: true, icon: 'Code' },
   { id: 'cat-5', name: 'Design Templates', slug: 'templates', active: true, icon: 'Layout' },
-  { id: 'cat-6', name: 'T-Shirt Bundles', slug: 'tshirt-bundles', active: true, icon: 'Shirt' }
+  { id: 'cat-6', name: 'T-Shirt & Graphics Bundles', slug: 'graphics-bundles', active: true, icon: 'Shirt' }
 ];
 
-// Initial Products Data (Including Premanand Ji Maharaj 1,500+ Reels Bundle)
+// Initial Complete Products Catalog (Premanand Maharaj, Anime, Gym Fitness, Stock Market, 25K Vault, E-Books)
 export const DEFAULT_PRODUCTS = [
   {
     id: 'prod-premanand-maharaj',
@@ -96,6 +96,81 @@ export const DEFAULT_PRODUCTS = [
     seoDescription: 'Download 1,500+ Pujya Premanand Ji Maharaj Bhakti & Satsang Reels with commercial rights.'
   },
   {
+    id: 'prod-anime-reels',
+    name: '500+ 3D Anime & 2D Cartoon Reels Bundle',
+    slug: '500-3d-anime-cartoon-reels-bundle',
+    category: 'reels-bundles',
+    thumbnail: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=800&q=80',
+    banner: 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?auto=format&fit=crop&w=1400&q=80',
+    shortCaption: 'Viral 500+ HD/4K 3D Anime & Cartoon Animations with viral audio overlays for massive engagement.',
+    fullDescription: 'Unleash ultra-viral anime engagement on Instagram and YouTube Shorts. Features 500+ top-trending 3D Anime edits, DBZ, Demon Slayer, Naruto, and 2D cartoon clips with sync audio, dynamic captions, and crisp 60fps rendering.',
+    features: [
+      '500+ HD 60fps 3D Anime & 2D Cartoon Video Clips',
+      '100% Watermark-Free & Edit Ready',
+      'Pre-Synced Trending Beats & Lo-Fi Audio',
+      'Instant Cloud Drive Access & Lifetime Updates',
+      'Commercial & Resell License Included'
+    ],
+    reelsCount: 500,
+    format: 'MP4 9:16 Vertical HD 60fps',
+    originalPrice: 1499,
+    salePrice: 199,
+    discount: 87,
+    rating: 4.96,
+    reviewsCount: 289,
+    status: 'published',
+    isBestSeller: true,
+    demoVideos: [
+      {
+        id: 'v-anime-1',
+        title: '3D Anime Cinematic Action Edit',
+        url: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-shot-of-a-futuristic-city-at-night-42299-large.mp4',
+        views: '1.9M',
+        likes: '260K'
+      }
+    ],
+    deliveryLink: 'https://drive.google.com/drive/folders/anime-cartoon-reels-bundle-vault',
+    faq: [
+      { question: 'Can I monetize these Anime reels?', answer: 'Yes, all clips are edit-ready and suitable for theme page growth and affiliate monetization.' }
+    ]
+  },
+  {
+    id: 'prod-gym-fitness',
+    name: '500+ Gym, Fitness & Motivation Reels Bundle',
+    slug: '500-gym-fitness-motivation-reels-bundle',
+    category: 'reels-bundles',
+    thumbnail: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?auto=format&fit=crop&w=800&q=80',
+    banner: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1400&q=80',
+    shortCaption: 'High-energy 500+ workout, bodybuilding, physique & discipline reels with motivational speech overlays.',
+    fullDescription: 'Supercharge your fitness page with 500+ cinematic workout clips, heavy lifting transformations, aesthetic physique edits, and motivational voiceover overlays. Perfect for fitness coaches, gym trainers, and Instagram fitness pages.',
+    features: [
+      '500+ 4K Ultra HD Fitness & Bodybuilding Reels',
+      'Motivational Speech & Hard Beats Audio Overlays',
+      'Clean & Watermark Free',
+      'Instant Cloud Drive Link Delivery',
+      'Full Commercial & Resell Rights'
+    ],
+    reelsCount: 500,
+    format: 'MP4 9:16 Vertical 4K',
+    originalPrice: 1499,
+    salePrice: 199,
+    discount: 87,
+    rating: 4.97,
+    reviewsCount: 340,
+    status: 'published',
+    isBestSeller: true,
+    demoVideos: [
+      {
+        id: 'v-gym-1',
+        title: 'Physique Transformation & Heavy Deadlift Reel',
+        url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4',
+        views: '2.8M',
+        likes: '390K'
+      }
+    ],
+    deliveryLink: 'https://drive.google.com/drive/folders/gym-fitness-reels-bundle-vault'
+  },
+  {
     id: 'prod-stock-masterclass',
     name: 'Stock Market & Options Trading Masterclass 2026',
     slug: 'stock-market-trading-masterclass',
@@ -128,26 +203,40 @@ export const DEFAULT_PRODUCTS = [
         thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80',
         views: '1.8M',
         likes: '240K'
-      },
-      {
-        id: 'v-stock-2',
-        title: 'Options Trading Hedging Strategy Demo',
-        url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4',
-        thumbnail: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=600&q=80',
-        views: '920K',
-        likes: '115K'
       }
     ],
-    deliveryLink: 'https://drive.google.com/drive/folders/stock-market-masterclass-2026-vault',
-    faq: [
-      { question: 'Is this suitable for absolute beginners?', answer: 'Yes! The course starts from basic market terms and progresses step-by-step to advanced Options strategies.' }
-    ],
-    seoTitle: 'Stock Market & Options Trading Masterclass 2026 | EXE DIGITAL WORLD',
-    seoDescription: 'Master stock market price action and options trading with 50+ video lessons.'
+    deliveryLink: 'https://drive.google.com/drive/folders/stock-market-masterclass-2026-vault'
   },
   {
-    id: 'prod-1',
-    name: '25,000+ Viral Reels Bundle HD 4K',
+    id: 'prod-hindi-ebooks',
+    name: '1,000+ Hindi E-Books & Self-Help Audiobooks Vault',
+    slug: '1000-hindi-ebooks-audiobooks-vault',
+    category: 'ebooks',
+    thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+    banner: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=1400&q=80',
+    shortCaption: 'Massive library of 1,000+ Bestselling Hindi PDF E-Books, Money Mindset & Personal Growth Books.',
+    fullDescription: 'Expand your mind with India’s largest collection of 1,000+ Hindi PDF E-Books and Audiobooks. Covers Business, Financial Freedom, Stock Market, Meditation, Gita Wisdom, Communication Skills, and Psychology.',
+    features: [
+      '1,000+ Best-Selling Hindi PDF E-Books',
+      'Instant Mobile & Laptop Compatible Reading',
+      'Covers Finance, Mindset, Bhagavad Gita, Business',
+      'Instant High-Speed Google Drive Cloud Access',
+      'Lifetime Access & Unlimited Downloads'
+    ],
+    reelsCount: 1000,
+    format: 'PDF E-Books & MP3 Audiobooks',
+    originalPrice: 1999,
+    salePrice: 199,
+    discount: 90,
+    rating: 4.94,
+    reviewsCount: 215,
+    status: 'published',
+    isBestSeller: true,
+    deliveryLink: 'https://drive.google.com/drive/folders/hindi-ebooks-vault'
+  },
+  {
+    id: 'prod-25k-reels',
+    name: '25,000+ Ultimate Viral Reels Vault (Luxury, AI, Tech, Mindset)',
     slug: '25000-viral-reels-bundle',
     category: 'reels-bundles',
     thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
@@ -163,11 +252,11 @@ export const DEFAULT_PRODUCTS = [
     ],
     reelsCount: 25000,
     format: 'MP4 9:16 Vertical (1080x1920 HD / 4K)',
-    originalPrice: 1999,
-    salePrice: 299,
-    discount: 85,
-    rating: 4.95,
-    reviewsCount: 428,
+    originalPrice: 2999,
+    salePrice: 399,
+    discount: 87,
+    rating: 4.98,
+    reviewsCount: 610,
     status: 'published',
     isBestSeller: true,
     demoVideos: [
@@ -175,17 +264,11 @@ export const DEFAULT_PRODUCTS = [
         id: 'v1',
         title: 'Cyberpunk Futuristic Tech Reel',
         url: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-shot-of-a-futuristic-city-at-night-42299-large.mp4',
-        thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80',
         views: '1.2M',
         likes: '142K'
       }
     ],
-    deliveryLink: 'https://drive.google.com/drive/folders/exe-25k-reels-bundle-secure-vault',
-    faq: [
-      { question: 'How will I receive the files after purchase?', answer: 'Instant automatic delivery! Immediately after payment, you get access to our high-speed Google Drive link.' }
-    ],
-    seoTitle: '25,000+ Viral Reels Bundle HD 4K | EXE DIGITAL WORLD',
-    seoDescription: 'Download 25,000+ viral 4K Reels for Instagram, TikTok and Meta Ads.'
+    deliveryLink: 'https://drive.google.com/drive/folders/exe-25k-reels-bundle-secure-vault'
   }
 ];
 
@@ -248,12 +331,10 @@ export function safeSetItem(key, data) {
   } catch (err) {
     console.warn(`LocalStorage Quota Exceeded for ${key}, compressing payload...`, err);
     try {
-      // If quota exceeded due to huge base64 strings, trim heavy base64 video URLs gracefully
       const sanitized = JSON.parse(JSON.stringify(data)).map(prod => {
         if (prod.demoVideos) {
           prod.demoVideos = prod.demoVideos.map(v => {
             if (v.url && v.url.length > 300000 && v.url.startsWith('data:video')) {
-              // Store compact preview marker if payload is super massive
               return { ...v, url: v.url.substring(0, 100000) };
             }
             return v;
@@ -270,7 +351,7 @@ export function safeSetItem(key, data) {
   }
 }
 
-// Storage Initialization Helper (ONLY initialize if NOT set yet!)
+// Storage Initialization Helper
 export function initStorage() {
   if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
@@ -294,7 +375,13 @@ export function initStorage() {
 export function getProducts() {
   initStorage();
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEYS.PRODUCTS) || '[]');
+    const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+    const parsed = JSON.parse(data);
+    if (!parsed || parsed.length === 0) {
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+      return DEFAULT_PRODUCTS;
+    }
+    return parsed;
   } catch (e) {
     return DEFAULT_PRODUCTS;
   }
@@ -309,7 +396,6 @@ export function saveProduct(productData) {
   const products = getProducts();
   let updated;
 
-  // Generate unique slug if empty or missing
   const generatedSlug = productData.slug
     ? productData.slug.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
     : (productData.name || 'digital-product').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
