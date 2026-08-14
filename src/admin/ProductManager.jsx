@@ -1,10 +1,76 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Copy, Eye, X, Smartphone, Upload, Image as ImageIcon, Video, Play, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, Eye, X, Smartphone, Upload, Image as ImageIcon, Video, Play, Sparkles, CheckCircle2, Film } from 'lucide-react';
 import { getProducts, saveProduct, deleteProduct, getCategories, formatINR } from '../services/storage';
+
+/**
+ * Browser Canvas Video First-Frame Extractor
+ * Loads a video file/blob/URL, seeks to 0.5s, draws onto canvas, and returns JPEG Data URL.
+ */
+export function extractVideoFirstFrame(videoSource) {
+  return new Promise((resolve) => {
+    if (!videoSource) return resolve('');
+
+    const video = document.createElement('video');
+    video.crossOrigin = 'anonymous';
+    video.preload = 'metadata';
+    video.muted = true;
+    video.playsInline = true;
+
+    let srcUrl = '';
+    if (typeof videoSource === 'string') {
+      srcUrl = videoSource;
+    } else if (videoSource instanceof File || videoSource instanceof Blob) {
+      srcUrl = URL.createObjectURL(videoSource);
+    } else {
+      return resolve('');
+    }
+
+    video.src = srcUrl;
+
+    const captureFrame = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 360;
+        canvas.height = video.videoHeight || 640;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        if (typeof videoSource !== 'string' && srcUrl) {
+          URL.revokeObjectURL(srcUrl);
+        }
+        resolve(dataUrl);
+      } catch (err) {
+        console.warn('Video frame capture notice:', err);
+        resolve('');
+      }
+    };
+
+    video.onloadedmetadata = () => {
+      video.currentTime = Math.min(0.5, (video.duration || 1) / 2);
+    };
+
+    video.onseeked = () => {
+      captureFrame();
+    };
+
+    video.onerror = () => {
+      resolve('');
+    };
+
+    setTimeout(() => {
+      if (video.readyState >= 2) {
+        captureFrame();
+      } else {
+        resolve('');
+      }
+    }, 2500);
+  });
+}
 
 export default function ProductManager({ onSelectProduct }) {
   const [products, setProducts] = useState(getProducts());
   const [isEditing, setIsEditing] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
 
   const categories = getCategories();
 
@@ -24,8 +90,8 @@ export default function ProductManager({ onSelectProduct }) {
     salePrice: 499,
     discount: 90,
     demoVideos: [
-      { id: 'v1', title: 'Demo Video #1', url: 'https://assets.mixkit.co/videos/preview/mixkit-chart-bars-on-a-digital-screen-41619-large.mp4' },
-      { id: 'v2', title: 'Demo Video #2', url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4' }
+      { id: 'v1', title: 'Demo Video #1', url: 'https://assets.mixkit.co/videos/preview/mixkit-chart-bars-on-a-digital-screen-41619-large.mp4', thumbnail: '' },
+      { id: 'v2', title: 'Demo Video #2', url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4', thumbnail: '' }
     ],
     deliveryLink: 'https://drive.google.com/drive/folders/exe-digital-product-access',
     faqStr: 'Q: How do I access my product after purchase?\nA: Instant automatic access via Google Drive link immediately after checkout.\n\nQ: Does it include lifetime updates?\nA: Yes, all buyers receive free lifetime updates.',
@@ -65,19 +131,34 @@ export default function ProductManager({ onSelectProduct }) {
   const handleDemoVideoChange = (index, field, value) => {
     const updatedDemos = [...(formData.demoVideos || [])];
     if (!updatedDemos[index]) {
-      updatedDemos[index] = { id: `v-${index + 1}`, title: `Demo Reel #${index + 1}`, url: '' };
+      updatedDemos[index] = { id: `v-${index + 1}`, title: `Demo Reel #${index + 1}`, url: '', thumbnail: '' };
     }
     updatedDemos[index][field] = value;
     setFormData({ ...formData, demoVideos: updatedDemos });
   };
 
-  // Direct MP4 Video File Upload from computer
-  const handleDemoVideoFileUpload = (index, e) => {
+  // Direct MP4 Video File Upload from computer + Automatic First Frame Extraction
+  const handleDemoVideoFileUpload = async (index, e) => {
     const file = e.target.files[0];
     if (file) {
+      setIsExtracting(true);
+      
+      // 1. Extract first frame thumbnail image data URL from video file
+      const autoThumbnail = await extractVideoFirstFrame(file);
+
+      // 2. Read full video as Data URL
       const reader = new FileReader();
       reader.onloadend = () => {
-        handleDemoVideoChange(index, 'url', reader.result);
+        const videoDataUrl = reader.result;
+        const updatedDemos = [...(formData.demoVideos || [])];
+        if (!updatedDemos[index]) {
+          updatedDemos[index] = { id: `v-${index + 1}`, title: `Demo Reel #${index + 1}` };
+        }
+        updatedDemos[index].url = videoDataUrl;
+        updatedDemos[index].thumbnail = autoThumbnail || '';
+        
+        setFormData({ ...formData, demoVideos: updatedDemos });
+        setIsExtracting(false);
       };
       reader.readAsDataURL(file);
     }
@@ -90,7 +171,7 @@ export default function ProductManager({ onSelectProduct }) {
       ...formData,
       demoVideos: [
         ...current,
-        { id: `v-${nextIdx}`, title: `Demo Video #${nextIdx}`, url: '' }
+        { id: `v-${nextIdx}`, title: `Demo Video #${nextIdx}`, url: '', thumbnail: '' }
       ]
     });
   };
@@ -158,7 +239,7 @@ export default function ProductManager({ onSelectProduct }) {
             Product Management <span className="text-cyan-400">({products.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Manage Courses, Reels Bundles, E-Books, Direct Video Uploads (Auto Video Thumbnails) in INR (₹).
+            Manage Courses, Reels Bundles, E-Books, Direct Video Uploads (Auto First-Frame Thumbnail) in INR (₹).
           </p>
         </div>
 
@@ -347,16 +428,16 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
             </div>
 
-            {/* 2. DIRECT DEMO VIDEO UPLOAD (AUTOMATIC VIDEO THUMBNAILS - NO SEPARATE THUMBNAIL INPUT) */}
+            {/* 2. AUTOMATIC FIRST-FRAME VIDEO THUMBNAIL CAPTURE SYSTEM */}
             <div className="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-white flex items-center gap-2">
                     <Video className="w-4 h-4 text-cyan-400" />
-                    2. Demo Videos (Automatic Video Thumbnail Capture)
+                    2. Demo Videos (Automatic First-Frame Thumbnail Capture)
                   </h4>
                   <p className="text-xs text-slate-400">
-                    Upload MP4 video files directly from your computer. Video thumbnails are automatically captured from the video's first frame!
+                    Upload MP4 video files directly from your computer. Video thumbnails are automatically extracted from the video's first frame!
                   </p>
                 </div>
                 <button
@@ -388,7 +469,7 @@ export default function ProductManager({ onSelectProduct }) {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                       
                       {/* Video Title */}
                       <div>
@@ -403,16 +484,11 @@ export default function ProductManager({ onSelectProduct }) {
                       </div>
 
                       {/* Direct MP4 Video Upload Dropzone */}
-                      <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center gap-2">
-                        <Video className="w-6 h-6 text-cyan-400" />
-                        <span className="text-xs font-bold text-white">Upload MP4 Video File</span>
-                        <span className="text-[10px] text-slate-400">
-                          {demo.url ? '✅ Video Ready (Thumbnail Captured Auto)' : 'Select MP4, MOV, or WEBM video from computer'}
-                        </span>
-                        
-                        <label className="mt-1 px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-extrabold cursor-pointer flex items-center gap-1.5 shadow-glow-cyan">
-                          <Upload className="w-3.5 h-3.5 text-black" />
-                          Browse MP4 Video File...
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-1">Upload MP4 Video File</label>
+                        <label className="w-full p-3 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-xs font-extrabold cursor-pointer flex items-center justify-center gap-2 transition-all">
+                          <Upload className="w-4 h-4 text-cyan-400" />
+                          {isExtracting ? 'Extracting First Frame...' : 'Browse MP4 Video...'}
                           <input
                             type="file"
                             accept="video/*"
@@ -420,12 +496,31 @@ export default function ProductManager({ onSelectProduct }) {
                             className="hidden"
                           />
                         </label>
+                      </div>
 
-                        {demo.url && (
-                          <div className="w-full mt-2 rounded-xl bg-black overflow-hidden border border-slate-800">
-                            <video src={demo.url} controls className="w-full h-24 object-cover" />
-                          </div>
-                        )}
+                      {/* Auto-Captured First Frame Thumbnail Preview */}
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-300 mb-1 flex items-center justify-between">
+                          <span>Auto-Captured Thumbnail</span>
+                          {demo.thumbnail && <span className="text-[9px] text-emerald-400 font-bold">✅ 1st Frame Ready</span>}
+                        </label>
+                        <div className="w-full h-20 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden relative flex items-center justify-center text-slate-500 text-[10px]">
+                          {demo.thumbnail ? (
+                            <div className="relative w-full h-full group">
+                              <img src={demo.thumbnail} alt="Extracted First Frame" className="w-full h-full object-cover" />
+                              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                <Play className="w-6 h-6 text-white fill-white" />
+                              </div>
+                            </div>
+                          ) : demo.url ? (
+                            <video src={demo.url} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="flex items-center gap-1">
+                              <Film className="w-3.5 h-3.5 text-slate-600" />
+                              Auto 1st Frame Preview
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                     </div>
