@@ -11,14 +11,22 @@ export default function PhoneMockup({
 }) {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(false); // Unmuted by default so voice/audio plays
   const [isLooping, setIsLooping] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
     if (autoPlay && videoRef.current) {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+      videoRef.current.muted = false;
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {
+        // If browser blocks unmuted autoplay, fallback to muted autoplay
+        if (videoRef.current) {
+          videoRef.current.muted = true;
+          setIsMuted(true);
+          videoRef.current.play().then(() => setIsPlaying(true)).catch(() => setIsPlaying(false));
+        }
+      });
     }
   }, [autoPlay]);
 
@@ -28,7 +36,11 @@ export default function PhoneMockup({
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(err => {
+      // Unmute and play audio/voice clearly
+      videoRef.current.muted = isMuted;
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch(err => {
         console.warn("Video play error:", err);
       });
     }
@@ -66,7 +78,8 @@ export default function PhoneMockup({
             <video
               ref={videoRef}
               src={videoUrl}
-              poster={thumbnail}
+              poster={thumbnail || undefined}
+              preload="metadata"
               className="w-full h-full object-cover cursor-pointer"
               playsInline
               loop={isLooping}
@@ -87,8 +100,9 @@ export default function PhoneMockup({
               <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 text-black flex items-center justify-center shadow-glow-cyan transform group-hover:scale-110 transition-transform">
                 <Play className="w-8 h-8 fill-black ml-1" />
               </div>
-              <span className="mt-3 px-3 py-1 rounded-full bg-black/70 text-cyan-300 border border-cyan-500/30 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-md">
-                PLAY DIRECTLY HERE
+              <span className="mt-3 px-3.5 py-1 rounded-full bg-black/80 text-cyan-300 border border-cyan-500/40 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-md flex items-center gap-1.5 shadow-lg">
+                <Volume2 className="w-3.5 h-3.5 text-cyan-400" />
+                PLAY WITH AUDIO / VOICE
               </span>
             </div>
           )}
@@ -124,10 +138,10 @@ export default function PhoneMockup({
             </button>
 
             <button onClick={toggleMute} className="flex flex-col items-center gap-1">
-              <div className={`p-2.5 rounded-full backdrop-blur-md ${isMuted ? 'bg-red-500/80 text-white' : 'bg-cyan-500 text-black font-bold'}`}>
-                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+              <div className={`p-2.5 rounded-full backdrop-blur-md transition-all ${!isMuted ? 'bg-cyan-500 text-black font-bold scale-110 shadow-glow-cyan' : 'bg-red-500/80 text-white'}`}>
+                {!isMuted ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </div>
-              <span className="text-[9px] font-bold drop-shadow uppercase">{isMuted ? 'Muted' : 'Sound On'}</span>
+              <span className="text-[9px] font-bold drop-shadow uppercase">{!isMuted ? 'Voice On' : 'Muted'}</span>
             </button>
 
             <div className="w-7 h-7 rounded-full bg-slate-800 border-2 border-cyan-400 flex items-center justify-center animate-spin" style={{ animationDuration: '8s' }}>
@@ -163,7 +177,7 @@ export default function PhoneMockup({
       {/* Caption under Mockup */}
       <div className="mt-3 text-center">
         <h4 className="text-xs font-bold text-slate-200">{title}</h4>
-        <p className="text-[11px] text-slate-400">9:16 Vertical HD • Instant Direct Play</p>
+        <p className="text-[11px] text-slate-400">9:16 Vertical HD • Audio/Voice Enabled</p>
       </div>
 
     </div>
