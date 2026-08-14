@@ -3,6 +3,7 @@ import { Play, Pause, Volume2, VolumeX, Repeat, Heart, MessageCircle, Share2, Mu
 
 export default function PhoneMockup({ 
   videoUrl, 
+  thumbnail = "",
   title = "Viral Reel Demo", 
   likes = "142K", 
   views = "1.2M",
@@ -40,11 +41,6 @@ export default function PhoneMockup({
     setIsMuted(!isMuted);
   };
 
-  const toggleLoop = (e) => {
-    e.stopPropagation();
-    setIsLooping(!isLooping);
-  };
-
   return (
     <div className="flex flex-col items-center group">
       
@@ -70,6 +66,7 @@ export default function PhoneMockup({
             <video
               ref={videoRef}
               src={videoUrl}
+              poster={thumbnail}
               className="w-full h-full object-cover cursor-pointer"
               playsInline
               loop={isLooping}
@@ -81,15 +78,18 @@ export default function PhoneMockup({
             />
           )}
 
-          {/* Big Play/Pause Overlay Overlay when paused */}
+          {/* Centered ▶️ Play Button Overlay when paused */}
           {!isPlaying && !hasError && (
             <div 
               onClick={togglePlay}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center cursor-pointer transition-opacity group-hover:bg-black/30"
+              className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-all group-hover:bg-black/30 z-30"
             >
-              <div className="w-16 h-16 rounded-full bg-cyan-500/90 text-black flex items-center justify-center shadow-glow-cyan transform group-hover:scale-110 transition-transform">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-400 to-teal-300 text-black flex items-center justify-center shadow-glow-cyan transform group-hover:scale-110 transition-transform">
                 <Play className="w-8 h-8 fill-black ml-1" />
               </div>
+              <span className="mt-3 px-3 py-1 rounded-full bg-black/70 text-cyan-300 border border-cyan-500/30 text-[10px] font-extrabold uppercase tracking-wider backdrop-blur-md">
+                PLAY DIRECTLY HERE
+              </span>
             </div>
           )}
 
@@ -163,7 +163,7 @@ export default function PhoneMockup({
       {/* Caption under Mockup */}
       <div className="mt-3 text-center">
         <h4 className="text-xs font-bold text-slate-200">{title}</h4>
-        <p className="text-[11px] text-slate-400">9:16 Vertical HD • Unbranded</p>
+        <p className="text-[11px] text-slate-400">9:16 Vertical HD • Instant Direct Play</p>
       </div>
 
     </div>

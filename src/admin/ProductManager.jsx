@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, Copy, Eye, X, Smartphone } from 'lucide-react';
+import { Plus, Edit2, Trash2, Copy, Eye, X, Smartphone, Upload, Image as ImageIcon, Video, Play, Sparkles, CheckCircle2 } from 'lucide-react';
 import { getProducts, saveProduct, deleteProduct, getCategories, formatINR } from '../services/storage';
 
 export default function ProductManager({ onSelectProduct }) {
@@ -12,27 +12,25 @@ export default function ProductManager({ onSelectProduct }) {
     id: '',
     name: '',
     slug: '',
-    category: 'reels-bundles',
-    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-    banner: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1400&q=80',
+    category: 'courses', // Default or selected category
+    thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80',
+    banner: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1400&q=80',
     shortCaption: '',
     fullDescription: '',
-    featuresStr: '25,000+ Ready-to-Post HD Reels\n100% Non-Watermarked & Edit-Ready\nCommercial & Resell Rights Included',
-    reelsCount: 25000,
-    format: 'MP4 9:16 Vertical HD',
-    originalPrice: 1999,
-    salePrice: 299,
-    discount: 85,
-    demoVideo1: 'https://assets.mixkit.co/videos/preview/mixkit-vertical-shot-of-a-futuristic-city-at-night-42299-large.mp4',
-    demoVideo2: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4',
-    demoVideo3: 'https://assets.mixkit.co/videos/preview/mixkit-close-up-of-a-man-doing-exercises-with-dumbbells-41617-large.mp4',
-    demoVideo4: 'https://assets.mixkit.co/videos/preview/mixkit-man-runs-along-the-sea-at-sunset-40131-large.mp4',
-    deliveryLink: 'https://drive.google.com/drive/folders/exe-reels-bundle-secure',
-    faqStr: 'Q: How do I receive my order?\nA: Instant automatic download via Google Drive.\n\nQ: Are these reels watermark free?\nA: Yes, 100% clean and watermark-free.',
-    seoTitle: '',
-    seoDescription: '',
+    featuresStr: 'Comprehensive Video Lessons & Workbooks\nInstant Cloud Access & Lifetime Updates\nFull Commercial Rights Included',
+    reelsCount: 50,
+    format: 'HD Video Lessons & PDF Guides',
+    originalPrice: 4999,
+    salePrice: 499,
+    discount: 90,
+    demoVideos: [
+      { id: 'v1', title: 'Demo Video #1', url: 'https://assets.mixkit.co/videos/preview/mixkit-chart-bars-on-a-digital-screen-41619-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=600&q=80' },
+      { id: 'v2', title: 'Demo Video #2', url: 'https://assets.mixkit.co/videos/preview/mixkit-hands-holding-a-smartphone-with-a-green-screen-43289-large.mp4', thumbnail: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=600&q=80' }
+    ],
+    deliveryLink: 'https://drive.google.com/drive/folders/exe-digital-product-access',
+    faqStr: 'Q: How do I access my product after purchase?\nA: Instant automatic access via Google Drive link immediately after checkout.\n\nQ: Does it include lifetime updates?\nA: Yes, all buyers receive free lifetime updates.',
     status: 'published',
-    isBestSeller: false
+    isBestSeller: true
   };
 
   const [formData, setFormData] = useState(emptyForm);
@@ -47,13 +45,58 @@ export default function ProductManager({ onSelectProduct }) {
     setFormData({
       ...p,
       featuresStr: (p.features || []).join('\n'),
-      demoVideo1: demos[0]?.url || '',
-      demoVideo2: demos[1]?.url || '',
-      demoVideo3: demos[2]?.url || '',
-      demoVideo4: demos[3]?.url || '',
+      demoVideos: demos.length > 0 ? demos : emptyForm.demoVideos,
       faqStr: (p.faq || []).map(f => `Q: ${f.question}\nA: ${f.answer}`).join('\n\n')
     });
     setIsEditing(true);
+  };
+
+  const handleMainImageFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, thumbnail: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDemoVideoChange = (index, field, value) => {
+    const updatedDemos = [...(formData.demoVideos || [])];
+    if (!updatedDemos[index]) {
+      updatedDemos[index] = { id: `v-${index + 1}`, title: `Demo Reel #${index + 1}`, url: '', thumbnail: '' };
+    }
+    updatedDemos[index][field] = value;
+    setFormData({ ...formData, demoVideos: updatedDemos });
+  };
+
+  const handleDemoThumbnailUpload = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleDemoVideoChange(index, 'thumbnail', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAddDemoVideoField = () => {
+    const current = formData.demoVideos || [];
+    const nextIdx = current.length + 1;
+    setFormData({
+      ...formData,
+      demoVideos: [
+        ...current,
+        { id: `v-${nextIdx}`, title: `Demo Video #${nextIdx}`, url: '', thumbnail: '' }
+      ]
+    });
+  };
+
+  const handleRemoveDemoVideoField = (index) => {
+    const updated = (formData.demoVideos || []).filter((_, i) => i !== index);
+    setFormData({ ...formData, demoVideos: updated });
   };
 
   const handleDuplicate = (p) => {
@@ -86,12 +129,7 @@ export default function ProductManager({ onSelectProduct }) {
       return { question: q, answer: a };
     }).filter(f => f.question);
 
-    const demoVideos = [
-      { id: 'v1', title: 'Demo Video #1', url: formData.demoVideo1, views: '1.2M', likes: '140K' },
-      { id: 'v2', title: 'Demo Video #2', url: formData.demoVideo2, views: '890K', likes: '90K' },
-      { id: 'v3', title: 'Demo Video #3', url: formData.demoVideo3, views: '2.1M', likes: '210K' },
-      { id: 'v4', title: 'Demo Video #4', url: formData.demoVideo4, views: '1.5M', likes: '160K' }
-    ].filter(v => v.url && v.url.trim().length > 0);
+    const validDemoVideos = (formData.demoVideos || []).filter(v => v.url && v.url.trim().length > 0);
 
     const calculatedDiscount = Math.round(((formData.originalPrice - formData.salePrice) / formData.originalPrice) * 100);
 
@@ -99,7 +137,7 @@ export default function ProductManager({ onSelectProduct }) {
       ...formData,
       features: featuresArr,
       faq: faqArr,
-      demoVideos,
+      demoVideos: validDemoVideos,
       discount: isNaN(calculatedDiscount) ? 80 : calculatedDiscount,
       status: statusOverride || formData.status || 'published'
     };
@@ -113,22 +151,22 @@ export default function ProductManager({ onSelectProduct }) {
     <div className="space-y-8 animate-fadeIn">
       
       {/* Header Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="font-display font-black text-2xl text-white">
             Product Management <span className="text-cyan-400">({products.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Create, edit, duplicate, and manage demo video reels for all products in INR (₹).
+            Manage Courses, Reels Bundles, E-Books, Software, Custom Images, and HTML5 Demo Video Thumbnails in INR (₹).
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="px-5 py-3 rounded-2xl font-display font-bold text-xs uppercase tracking-wider text-black bg-gradient-to-r from-cyan-400 via-teal-300 to-cyan-400 shadow-glow-cyan flex items-center gap-2 hover:scale-105 transition-all"
+          className="px-5 py-3 rounded-2xl font-display font-bold text-xs uppercase tracking-wider text-black bg-gradient-to-r from-cyan-400 via-teal-300 to-cyan-400 shadow-glow-cyan flex items-center gap-2 hover:scale-105 transition-all self-start"
         >
           <Plus className="w-4 h-4" />
-          Add New Product
+          Add New Product / Course
         </button>
       </div>
 
@@ -137,8 +175,9 @@ export default function ProductManager({ onSelectProduct }) {
         <div className="glass-panel p-8 rounded-3xl border border-cyan-500/40 bg-slate-950/95 space-y-6 shadow-2xl relative animate-slideDown">
           
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <h3 className="font-display font-extrabold text-lg text-white">
-              {formData.id ? 'Edit Product' : 'Add New Product'}
+            <h3 className="font-display font-extrabold text-lg text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-cyan-400" />
+              {formData.id ? 'Edit Digital Product / Course' : 'Create New Product / Course'}
             </h3>
             <button
               onClick={() => setIsEditing(false)}
@@ -150,32 +189,86 @@ export default function ProductManager({ onSelectProduct }) {
 
           <form onSubmit={handleFormSubmit} className="space-y-6">
             
+            {/* 1. Main Product Image Upload & Preview */}
+            <div className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-bold uppercase text-slate-200 flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-cyan-400" />
+                  1. Main Product Image (1:1 Ratio Recommended) *
+                </label>
+                <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                  RECOMMENDED RATIO 1:1
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                
+                {/* Image Preview Box */}
+                <div className="w-32 h-32 rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden relative group">
+                  <img
+                    src={formData.thumbnail || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=400&q=80'}
+                    alt="Main Product Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-[10px] text-cyan-400 font-bold">
+                    1:1 Preview
+                  </div>
+                </div>
+
+                {/* Upload or URL Inputs */}
+                <div className="sm:col-span-2 space-y-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Option A: Upload Image File (Local Computer)</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMainImageFileUpload}
+                      className="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Option B: Image URL (CDN / Web Link)</label>
+                    <input
+                      type="url"
+                      value={formData.thumbnail}
+                      onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
+                      placeholder="https://images.unsplash.com/..."
+                      className="w-full px-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-cyan-300 font-mono"
+                    />
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Basic Info & Category Selection */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Product Name *</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Product / Course Name *</label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. 25,000+ Viral Reels Bundle HD 4K"
+                  placeholder="e.g. Stock Market & Options Trading Masterclass"
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white focus:border-cyan-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">URL Slug (Auto)</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">URL Slug</label>
                 <input
                   type="text"
                   value={formData.slug}
                   onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder="25000-viral-reels-bundle"
+                  placeholder="stock-market-trading-masterclass"
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-cyan-400 font-mono focus:border-cyan-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Category</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Category *</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
@@ -188,9 +281,10 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
             </div>
 
+            {/* Pricing & Best Seller Toggle */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Number of Reels</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Items / Lessons Count</label>
                 <input
                   type="number"
                   value={formData.reelsCount}
@@ -210,12 +304,13 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Sale Price (₹)</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Sale Price (₹) *</label>
                 <input
                   type="number"
+                  required
                   value={formData.salePrice}
                   onChange={(e) => setFormData({ ...formData, salePrice: parseFloat(e.target.value) || 0 })}
-                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white font-bold text-cyan-400"
                 />
               </div>
 
@@ -235,13 +330,13 @@ export default function ProductManager({ onSelectProduct }) {
             {/* Captions & Description */}
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Short Caption / Subtitle *</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Short Subtitle / Caption *</label>
                 <input
                   type="text"
                   required
                   value={formData.shortCaption}
                   onChange={(e) => setFormData({ ...formData, shortCaption: e.target.value })}
-                  placeholder="Short high-converting hook..."
+                  placeholder="e.g. Master Price Action, Options Buying & Risk Management..."
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-sm text-white"
                 />
               </div>
@@ -257,57 +352,97 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
             </div>
 
-            {/* DEMO REEL VIDEOS MANAGEMENT */}
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-cyan-500/30 space-y-4">
-              <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                <Smartphone className="w-4 h-4 text-cyan-400" />
-                Demo Reel Video URLs (Renders in iPhone 13 Mockup)
-              </h4>
-              <p className="text-xs text-slate-400">
-                Upload or paste up to 4 direct MP4 video URLs for the interactive vertical 9:16 phone players.
-              </p>
+            {/* 2. DEMO VIDEOS & CUSTOM VIDEO THUMBNAILS MANAGEMENT */}
+            <div className="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-6">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                    <Video className="w-4 h-4 text-cyan-400" />
+                    2. Demo Videos & Custom Video Thumbnails (Direct HTML5 Inline Play)
+                  </h4>
+                  <p className="text-xs text-slate-400">
+                    Add video MP4 URLs and custom thumbnails. On the website, clicking the Play button plays the video directly on page (no external redirect!).
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddDemoVideoField}
+                  className="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs flex items-center gap-1 transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Demo Video
+                </button>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Reel Video #1 (MP4 URL)</label>
-                  <input
-                    type="url"
-                    value={formData.demoVideo1}
-                    onChange={(e) => setFormData({ ...formData, demoVideo1: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-cyan-300 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Reel Video #2 (MP4 URL)</label>
-                  <input
-                    type="url"
-                    value={formData.demoVideo2}
-                    onChange={(e) => setFormData({ ...formData, demoVideo2: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-cyan-300 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Reel Video #3 (MP4 URL)</label>
-                  <input
-                    type="url"
-                    value={formData.demoVideo3}
-                    onChange={(e) => setFormData({ ...formData, demoVideo3: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-cyan-300 font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Reel Video #4 (MP4 URL)</label>
-                  <input
-                    type="url"
-                    value={formData.demoVideo4}
-                    onChange={(e) => setFormData({ ...formData, demoVideo4: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-cyan-300 font-mono"
-                  />
-                </div>
+              <div className="space-y-4">
+                {(formData.demoVideos || []).map((demo, idx) => (
+                  <div key={idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                        Demo Video #{idx + 1}
+                      </span>
+                      {formData.demoVideos.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveDemoVideoField(idx)}
+                          className="text-slate-500 hover:text-red-400 p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      
+                      {/* Video Title */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Video Title</label>
+                        <input
+                          type="text"
+                          value={demo.title || ''}
+                          onChange={(e) => handleDemoVideoChange(idx, 'title', e.target.value)}
+                          placeholder="e.g. Price Action Strategy Demo"
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                        />
+                      </div>
+
+                      {/* Video MP4 URL */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Direct Video MP4 URL</label>
+                        <input
+                          type="url"
+                          value={demo.url || ''}
+                          onChange={(e) => handleDemoVideoChange(idx, 'url', e.target.value)}
+                          placeholder="https://assets.mixkit.co/..."
+                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-cyan-300 font-mono"
+                        />
+                      </div>
+
+                      {/* Custom Video Thumbnail Image */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Custom Video Thumbnail (Image URL or Upload)</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="url"
+                            value={demo.thumbnail || ''}
+                            onChange={(e) => handleDemoVideoChange(idx, 'thumbnail', e.target.value)}
+                            placeholder="Thumbnail URL..."
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-cyan-300 font-mono"
+                          />
+                          <label className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0" title="Upload Thumbnail File">
+                            <Upload className="w-4 h-4 text-cyan-400" />
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDemoThumbnailUpload(idx, e)} />
+                          </label>
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Delivery Link & Features */}
+            {/* Delivery Access Link & Features */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Digital Delivery Access Link *</label>
@@ -322,7 +457,7 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Features List (1 per line)</label>
+                <label className="block text-xs font-bold uppercase text-slate-300 mb-1">Features Checklist (1 per line)</label>
                 <textarea
                   rows={3}
                   value={formData.featuresStr}
@@ -345,7 +480,7 @@ export default function ProductManager({ onSelectProduct }) {
                 type="submit"
                 className="px-6 py-3 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black text-xs font-extrabold shadow-glow-cyan"
               >
-                Publish Product
+                Save & Publish Product
               </button>
             </div>
 
@@ -360,10 +495,10 @@ export default function ProductManager({ onSelectProduct }) {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-900/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-800">
               <tr>
-                <th className="p-4">Product</th>
+                <th className="p-4">Product / Course</th>
                 <th className="p-4">Category</th>
                 <th className="p-4">Price (INR)</th>
-                <th className="p-4">Reels</th>
+                <th className="p-4">Items</th>
                 <th className="p-4">Status</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
@@ -372,9 +507,9 @@ export default function ProductManager({ onSelectProduct }) {
               {products.map(p => (
                 <tr key={p.id} className="hover:bg-slate-900/50 transition-colors">
                   <td className="p-4 flex items-center gap-3">
-                    <img src={p.thumbnail} alt={p.name} className="w-10 h-10 rounded-xl object-cover" />
+                    <img src={p.thumbnail} alt={p.name} className="w-12 h-12 rounded-xl object-cover border border-slate-800" />
                     <div>
-                      <span className="font-bold text-white block">{p.name}</span>
+                      <span className="font-bold text-white block text-xs">{p.name}</span>
                       <span className="text-[10px] text-cyan-400 font-mono">/product/{p.slug}</span>
                     </div>
                   </td>

@@ -43,6 +43,7 @@ export default function DemoReelsSection({ demoVideos = [] }) {
             <div key={vid.id || idx} className="flex justify-center">
               <PhoneMockup
                 videoUrl={vid.url}
+                thumbnail={vid.thumbnail}
                 title={vid.title || `Demo Reel #${idx + 1}`}
                 likes={vid.likes || '120K'}
                 views={vid.views || '900K'}

@@ -16,15 +16,25 @@ export default function ProductCard({ product, onSelectProduct, onQuickBuy }) {
     onQuickBuy(product);
   };
 
+  const categoryLabels = {
+    'reels-bundles': 'Reels Bundle',
+    'courses': 'Stock Market Course',
+    'ebooks': 'E-Book Vault',
+    'software': 'Software & Tools',
+    'templates': 'Design Templates'
+  };
+
+  const formattedCategory = categoryLabels[product.category] || product.category.replace('-', ' ');
+
   return (
     <div 
       onClick={handleViewDetails}
       className="glass-card glass-card-hover rounded-3xl overflow-hidden cursor-pointer flex flex-col h-full border border-slate-800/80 group"
     >
-      {/* Media Thumbnail Container */}
-      <div className="relative aspect-[16/10] bg-slate-900 overflow-hidden">
+      {/* Media Thumbnail Container (1:1 / 16:10 Responsive Aspect) */}
+      <div className="relative aspect-square sm:aspect-[16/10] bg-slate-950 overflow-hidden flex items-center justify-center">
         <img
-          src={product.thumbnail}
+          src={product.thumbnail || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80'}
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           loading="lazy"
@@ -44,9 +54,9 @@ export default function ProductCard({ product, onSelectProduct, onQuickBuy }) {
           </span>
         </div>
 
-        {/* Reels Count Tag */}
+        {/* Items Count Tag */}
         <div className="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-xl border border-white/10 text-xs font-bold text-cyan-300">
-          ⚡ {product.reelsCount.toLocaleString()}+ Reels
+          ⚡ {product.reelsCount ? `${product.reelsCount.toLocaleString()}+ Included` : 'Instant Access'}
         </div>
       </div>
 
@@ -54,8 +64,8 @@ export default function ProductCard({ product, onSelectProduct, onQuickBuy }) {
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
-              {product.category.replace('-', ' ')}
+            <span className="text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              {formattedCategory}
             </span>
             <RatingStars rating={product.rating} reviewsCount={product.reviewsCount} />
           </div>
@@ -90,7 +100,7 @@ export default function ProductCard({ product, onSelectProduct, onQuickBuy }) {
                 {formatINR(product.originalPrice)}
               </span>
             </div>
-            <span className="text-[10px] text-emerald-400 font-semibold">Instant Digital Download</span>
+            <span className="text-[10px] text-emerald-400 font-semibold">Instant Digital Access</span>
           </div>
 
           <div className="flex items-center gap-2">
