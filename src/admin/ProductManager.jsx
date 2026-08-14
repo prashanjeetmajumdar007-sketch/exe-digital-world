@@ -12,7 +12,7 @@ export default function ProductManager({ onSelectProduct }) {
     id: '',
     name: '',
     slug: '',
-    category: 'courses', // Default or selected category
+    category: 'courses',
     thumbnail: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=800&q=80',
     banner: 'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1400&q=80',
     shortCaption: '',
@@ -71,6 +71,7 @@ export default function ProductManager({ onSelectProduct }) {
     setFormData({ ...formData, demoVideos: updatedDemos });
   };
 
+  // Direct MP4 Video File Upload from computer
   const handleDemoVideoFileUpload = (index, e) => {
     const file = e.target.files[0];
     if (file) {
@@ -82,6 +83,7 @@ export default function ProductManager({ onSelectProduct }) {
     }
   };
 
+  // Direct Thumbnail Image File Upload from computer
   const handleDemoThumbnailUpload = (index, e) => {
     const file = e.target.files[0];
     if (file) {
@@ -168,7 +170,7 @@ export default function ProductManager({ onSelectProduct }) {
             Product Management <span className="text-cyan-400">({products.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Manage Courses, Reels Bundles, E-Books, Software, Custom Images, and Direct Video File Uploads in INR (₹).
+            Manage Courses, Reels Bundles, E-Books, Direct Video File Uploads & Custom Thumbnails in INR (₹).
           </p>
         </div>
 
@@ -205,7 +207,7 @@ export default function ProductManager({ onSelectProduct }) {
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-bold uppercase text-slate-200 flex items-center gap-2">
                   <ImageIcon className="w-4 h-4 text-cyan-400" />
-                  1. Main Product Image (1:1 Ratio Recommended) *
+                  1. Main Product Image (Direct Computer Upload) *
                 </label>
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                   RECOMMENDED RATIO 1:1
@@ -226,27 +228,21 @@ export default function ProductManager({ onSelectProduct }) {
                   </div>
                 </div>
 
-                {/* Upload or URL Inputs */}
+                {/* Upload Button File Selector */}
                 <div className="sm:col-span-2 space-y-3">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Option A: Upload Image File (Local Computer)</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleMainImageFileUpload}
-                      className="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-cyan-500/20 file:text-cyan-300 hover:file:bg-cyan-500/30"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Option B: Image URL (CDN / Web Link)</label>
-                    <input
-                      type="url"
-                      value={formData.thumbnail}
-                      onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
-                      placeholder="https://images.unsplash.com/..."
-                      className="w-full px-4 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-cyan-300 font-mono"
-                    />
+                  <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center gap-2 text-center">
+                    <Upload className="w-6 h-6 text-cyan-400" />
+                    <span className="text-xs font-bold text-white">Upload Product Image File</span>
+                    <span className="text-[10px] text-slate-400">Select PNG, JPG, or WEBP from your computer</span>
+                    <label className="mt-1 px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs cursor-pointer shadow-glow-cyan">
+                      Browse Image File...
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleMainImageFileUpload}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
                 </div>
 
@@ -363,16 +359,16 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
             </div>
 
-            {/* 2. DEMO VIDEOS & CUSTOM VIDEO THUMBNAILS MANAGEMENT (DIRECT VIDEO UPLOAD) */}
+            {/* 2. DIRECT DEMO VIDEO FILE UPLOAD SYSTEM (DIRECT FILE UPLOAD DROPZONE) */}
             <div className="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-white flex items-center gap-2">
                     <Video className="w-4 h-4 text-cyan-400" />
-                    2. Demo Videos & Custom Video Thumbnails (Direct MP4 File Upload or URL)
+                    2. Demo Videos & Custom Video Thumbnails (Direct Computer File Upload System)
                   </h4>
                   <p className="text-xs text-slate-400">
-                    Upload MP4 video files directly from your computer or paste video URLs. Videos play inline on the website!
+                    Upload MP4 video files and custom image thumbnails directly from your computer. Videos play inline on the website!
                   </p>
                 </div>
                 <button
@@ -381,16 +377,17 @@ export default function ProductManager({ onSelectProduct }) {
                   className="px-3 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500 hover:text-black font-bold text-xs flex items-center gap-1 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Add Demo Video
+                  Add Demo Reel Item
                 </button>
               </div>
 
               <div className="space-y-4">
                 {(formData.demoVideos || []).map((demo, idx) => (
-                  <div key={idx} className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-3 relative">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                        Demo Video #{idx + 1}
+                  <div key={idx} className="p-5 rounded-2xl bg-slate-950 border border-slate-800 space-y-4 relative">
+                    <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                      <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Smartphone className="w-3.5 h-3.5 text-cyan-400" />
+                        Demo Reel #{idx + 1}
                       </span>
                       {formData.demoVideos.length > 1 && (
                         <button
@@ -403,58 +400,75 @@ export default function ProductManager({ onSelectProduct }) {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Video Title */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-300 mb-1">Demo Video Title</label>
+                      <input
+                        type="text"
+                        value={demo.title || ''}
+                        onChange={(e) => handleDemoVideoChange(idx, 'title', e.target.value)}
+                        placeholder="e.g. Price Action Trading Demo"
+                        className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
+                      />
+                    </div>
+
+                    {/* Direct Upload Dual Dropzone Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       
-                      {/* Video Title */}
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Video Title</label>
-                        <input
-                          type="text"
-                          value={demo.title || ''}
-                          onChange={(e) => handleDemoVideoChange(idx, 'title', e.target.value)}
-                          placeholder="e.g. Price Action Strategy Demo"
-                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white"
-                        />
+                      {/* Direct MP4 Video File Upload */}
+                      <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center gap-2">
+                        <Video className="w-6 h-6 text-cyan-400" />
+                        <span className="text-xs font-bold text-white">Direct MP4 Video File Upload</span>
+                        <span className="text-[10px] text-slate-400">
+                          {demo.url && demo.url.startsWith('data:') ? '✅ Video File Uploaded Ready' : 'Select MP4, MOV, or WEBM video from computer'}
+                        </span>
+                        
+                        <label className="mt-1 px-4 py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-extrabold cursor-pointer flex items-center gap-1.5 transition-all">
+                          <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                          Upload Video File...
+                          <input
+                            type="file"
+                            accept="video/*"
+                            onChange={(e) => handleDemoVideoFileUpload(idx, e)}
+                            className="hidden"
+                          />
+                        </label>
+
+                        {demo.url && (
+                          <div className="w-full mt-2 rounded-xl bg-black overflow-hidden border border-slate-800">
+                            <video src={demo.url} controls className="w-full h-24 object-cover" />
+                          </div>
+                        )}
                       </div>
 
-                      {/* Direct Video File Upload OR MP4 URL */}
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Direct Video MP4 (File Upload or URL)</label>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={demo.url || ''}
-                            onChange={(e) => handleDemoVideoChange(idx, 'url', e.target.value)}
-                            placeholder="MP4 URL or Upload Video File below..."
-                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-cyan-300 font-mono"
-                          />
-                          <label className="p-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 cursor-pointer shrink-0 flex items-center gap-1 font-bold text-[10px]" title="Upload MP4 Video File from computer">
-                            <Upload className="w-3.5 h-3.5 text-cyan-400" />
-                            Upload MP4
-                            <input type="file" accept="video/*" className="hidden" onChange={(e) => handleDemoVideoFileUpload(idx, e)} />
-                          </label>
-                        </div>
-                      </div>
+                      {/* Custom Video Thumbnail Image Upload */}
+                      <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 flex flex-col items-center justify-center text-center gap-2">
+                        <ImageIcon className="w-6 h-6 text-purple-400" />
+                        <span className="text-xs font-bold text-white">Custom Video Thumbnail Upload</span>
+                        <span className="text-[10px] text-slate-400">
+                          {demo.thumbnail && demo.thumbnail.startsWith('data:') ? '✅ Thumbnail Uploaded Ready' : 'Select JPG, PNG, or WEBP image from computer'}
+                        </span>
 
-                      {/* Custom Video Thumbnail Image */}
-                      <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Custom Video Thumbnail (Image URL or Upload)</label>
-                        <div className="flex items-center gap-2">
+                        <label className="mt-1 px-4 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-extrabold cursor-pointer flex items-center gap-1.5 transition-all">
+                          <Upload className="w-3.5 h-3.5 text-purple-400" />
+                          Upload Thumbnail Image...
                           <input
-                            type="url"
-                            value={demo.thumbnail || ''}
-                            onChange={(e) => handleDemoVideoChange(idx, 'thumbnail', e.target.value)}
-                            placeholder="Thumbnail URL..."
-                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-cyan-300 font-mono"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleDemoThumbnailUpload(idx, e)}
+                            className="hidden"
                           />
-                          <label className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer shrink-0" title="Upload Thumbnail File">
-                            <Upload className="w-4 h-4 text-cyan-400" />
-                            <input type="file" accept="image/*" className="hidden" onChange={(e) => handleDemoThumbnailUpload(idx, e)} />
-                          </label>
-                        </div>
+                        </label>
+
+                        {demo.thumbnail && (
+                          <div className="w-full mt-2 rounded-xl bg-black overflow-hidden border border-slate-800 h-24 flex items-center justify-center">
+                            <img src={demo.thumbnail} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        )}
                       </div>
 
                     </div>
+
                   </div>
                 ))}
               </div>
