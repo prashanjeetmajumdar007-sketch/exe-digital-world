@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { Play, Pause, Volume2, VolumeX, Repeat, Heart, MessageCircle, Share2, Music, Sparkles } from 'lucide-react';
 
 export default function PhoneMockup({ 
@@ -9,6 +9,7 @@ export default function PhoneMockup({
   views = "1.2M",
   autoPlay = false
 }) {
+  const playerId = useId();
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false); // Unmuted by default so voice/audio plays
@@ -16,10 +17,26 @@ export default function PhoneMockup({
   const [isLiked, setIsLiked] = useState(false);
   const [hasError, setHasError] = useState(false);
 
+  // Single Active Video Manager: Pause all other demo videos when one plays
+  useEffect(() => {
+    const handleOtherVideoPlay = (e) => {
+      if (e.detail?.id !== playerId && videoRef.current) {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    };
+
+    window.addEventListener('exe-video-play', handleOtherVideoPlay);
+    return () => window.removeEventListener('exe-video-play', handleOtherVideoPlay);
+  }, [playerId]);
+
   useEffect(() => {
     if (autoPlay && videoRef.current) {
       videoRef.current.muted = false;
-      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+        window.dispatchEvent(new CustomEvent('exe-video-play', { detail: { id: playerId } }));
+      }).catch(() => {
         // If browser blocks unmuted autoplay, fallback to muted autoplay
         if (videoRef.current) {
           videoRef.current.muted = true;
@@ -28,7 +45,7 @@ export default function PhoneMockup({
         }
       });
     }
-  }, [autoPlay]);
+  }, [autoPlay, playerId]);
 
   const togglePlay = () => {
     if (!videoRef.current) return;
@@ -36,6 +53,9 @@ export default function PhoneMockup({
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
+      // Pause all other active playing demo videos on the page
+      window.dispatchEvent(new CustomEvent('exe-video-play', { detail: { id: playerId } }));
+
       // Unmute and play audio/voice clearly
       videoRef.current.muted = isMuted;
       videoRef.current.play().then(() => {
@@ -86,7 +106,10 @@ export default function PhoneMockup({
               muted={isMuted}
               onClick={togglePlay}
               onError={() => setHasError(true)}
-              onPlay={() => setIsPlaying(true)}
+              onPlay={() => {
+                setIsPlaying(true);
+                window.dispatchEvent(new CustomEvent('exe-video-play', { detail: { id: playerId } }));
+              }}
               onPause={() => setIsPlaying(false)}
             />
           )}
