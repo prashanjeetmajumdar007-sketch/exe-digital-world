@@ -71,6 +71,17 @@ export default function ProductManager({ onSelectProduct }) {
     setFormData({ ...formData, demoVideos: updatedDemos });
   };
 
+  const handleDemoVideoFileUpload = (index, e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleDemoVideoChange(index, 'url', reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleDemoThumbnailUpload = (index, e) => {
     const file = e.target.files[0];
     if (file) {
@@ -157,7 +168,7 @@ export default function ProductManager({ onSelectProduct }) {
             Product Management <span className="text-cyan-400">({products.length})</span>
           </h2>
           <p className="text-xs text-slate-400">
-            Manage Courses, Reels Bundles, E-Books, Software, Custom Images, and HTML5 Demo Video Thumbnails in INR (₹).
+            Manage Courses, Reels Bundles, E-Books, Software, Custom Images, and Direct Video File Uploads in INR (₹).
           </p>
         </div>
 
@@ -352,16 +363,16 @@ export default function ProductManager({ onSelectProduct }) {
               </div>
             </div>
 
-            {/* 2. DEMO VIDEOS & CUSTOM VIDEO THUMBNAILS MANAGEMENT */}
+            {/* 2. DEMO VIDEOS & CUSTOM VIDEO THUMBNAILS MANAGEMENT (DIRECT VIDEO UPLOAD) */}
             <div className="p-6 rounded-2xl bg-slate-900/90 border border-cyan-500/40 space-y-6">
               <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                 <div>
                   <h4 className="font-bold text-sm text-white flex items-center gap-2">
                     <Video className="w-4 h-4 text-cyan-400" />
-                    2. Demo Videos & Custom Video Thumbnails (Direct HTML5 Inline Play)
+                    2. Demo Videos & Custom Video Thumbnails (Direct MP4 File Upload or URL)
                   </h4>
                   <p className="text-xs text-slate-400">
-                    Add video MP4 URLs and custom thumbnails. On the website, clicking the Play button plays the video directly on page (no external redirect!).
+                    Upload MP4 video files directly from your computer or paste video URLs. Videos play inline on the website!
                   </p>
                 </div>
                 <button
@@ -406,16 +417,23 @@ export default function ProductManager({ onSelectProduct }) {
                         />
                       </div>
 
-                      {/* Video MP4 URL */}
+                      {/* Direct Video File Upload OR MP4 URL */}
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Direct Video MP4 URL</label>
-                        <input
-                          type="url"
-                          value={demo.url || ''}
-                          onChange={(e) => handleDemoVideoChange(idx, 'url', e.target.value)}
-                          placeholder="https://assets.mixkit.co/..."
-                          className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-cyan-300 font-mono"
-                        />
+                        <label className="block text-[10px] font-bold text-slate-400 mb-1">Direct Video MP4 (File Upload or URL)</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={demo.url || ''}
+                            onChange={(e) => handleDemoVideoChange(idx, 'url', e.target.value)}
+                            placeholder="MP4 URL or Upload Video File below..."
+                            className="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-cyan-300 font-mono"
+                          />
+                          <label className="p-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 cursor-pointer shrink-0 flex items-center gap-1 font-bold text-[10px]" title="Upload MP4 Video File from computer">
+                            <Upload className="w-3.5 h-3.5 text-cyan-400" />
+                            Upload MP4
+                            <input type="file" accept="video/*" className="hidden" onChange={(e) => handleDemoVideoFileUpload(idx, e)} />
+                          </label>
+                        </div>
                       </div>
 
                       {/* Custom Video Thumbnail Image */}
