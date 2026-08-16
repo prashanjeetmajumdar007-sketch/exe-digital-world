@@ -26,7 +26,7 @@ export const DEFAULT_CATEGORIES = [
   { id: 'cat-6', name: 'T-Shirt & Graphics Bundles', slug: 'graphics-bundles', active: true, icon: 'Shirt' }
 ];
 
-// Initial Complete Products Catalog (Premanand Maharaj, Anime, Gym Fitness, Stock Market, 25K Vault, E-Books)
+// Initial Complete Products Catalog (Premanand Maharaj ₹69, Anime, Gym Fitness, Stock Market, 25K Vault, E-Books)
 export const DEFAULT_PRODUCTS = [
   {
     id: 'prod-premanand-maharaj',
@@ -47,8 +47,8 @@ export const DEFAULT_PRODUCTS = [
     reelsCount: 1500,
     format: 'MP4 9:16 Vertical HD/4K',
     originalPrice: 1999,
-    salePrice: 299,
-    discount: 85,
+    salePrice: 69,
+    discount: 97,
     rating: 4.99,
     reviewsCount: 524,
     status: 'published',
@@ -93,7 +93,7 @@ export const DEFAULT_PRODUCTS = [
       { question: 'Are these videos copyright free?', answer: 'Yes! All 1,500+ Reels are 100% watermark-free and monetization ready for Instagram Reels and YouTube Shorts.' }
     ],
     seoTitle: '1,500+ Premanand Ji Maharaj Viral Reels Bundle | EXE DIGITAL WORLD',
-    seoDescription: 'Download 1,500+ Pujya Premanand Ji Maharaj Bhakti & Satsang Reels with commercial rights.'
+    seoDescription: 'Download 1,500+ Pujya Premanand Ji Maharaj Bhakti & Satsang Reels with commercial rights for just ₹69.'
   },
   {
     id: 'prod-anime-reels',
@@ -306,13 +306,13 @@ export const DEFAULT_OFFERS = [
     offerType: 'single',
     slug: '1500-premanand-ji-maharaj-reels-bundle',
     heading: '1,500+ Premanand Ji Maharaj Viral Reels Bundle',
-    subheading: 'Get 1,500+ HD/4K Unbranded Satsang & Devotional Reels for 85% OFF Today!',
+    subheading: 'Get 1,500+ HD/4K Unbranded Satsang & Devotional Reels for 97% OFF Today!',
     banner: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1400&q=80',
     productIds: ['prod-premanand-maharaj'],
-    offerPrice: 299,
+    offerPrice: 69,
     originalPrice: 1999,
-    discount: 85,
-    ctaText: 'BUY PREMANAND MAHARAJ REELS (₹299)',
+    discount: 97,
+    ctaText: 'BUY PREMANAND MAHARAJ REELS (₹69)',
     description: 'High converting landing page for Premanand Ji Maharaj Reels Bundle.',
     benefits: [
       '1,500+ Ready-to-Post HD/4K Devotional Reels',
@@ -353,18 +353,36 @@ export function safeSetItem(key, data) {
 
 // Storage Initialization Helper
 export function initStorage() {
-  if (!localStorage.getItem(STORAGE_KEYS.PRODUCTS)) {
+  const currentProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+  if (!currentProducts) {
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(DEFAULT_PRODUCTS));
+  } else {
+    // Update Premanand Maharaj product price in existing storage
+    try {
+      const parsed = JSON.parse(currentProducts);
+      const updated = parsed.map(p => p.id === 'prod-premanand-maharaj' ? { ...p, salePrice: 69, discount: 97 } : p);
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+    } catch (e) {}
   }
+
   if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
     localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
   }
   if (!localStorage.getItem(STORAGE_KEYS.REVIEWS)) {
     localStorage.setItem(STORAGE_KEYS.REVIEWS, JSON.stringify(DEFAULT_REVIEWS));
   }
-  if (!localStorage.getItem(STORAGE_KEYS.OFFERS)) {
+  
+  const currentOffers = localStorage.getItem(STORAGE_KEYS.OFFERS);
+  if (!currentOffers) {
     localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(DEFAULT_OFFERS));
+  } else {
+    try {
+      const parsedOffers = JSON.parse(currentOffers);
+      const updatedOffers = parsedOffers.map(o => o.id === 'off-premanand' ? { ...o, offerPrice: 69, discount: 97, ctaText: 'BUY PREMANAND MAHARAJ REELS (₹69)' } : o);
+      localStorage.setItem(STORAGE_KEYS.OFFERS, JSON.stringify(updatedOffers));
+    } catch (e) {}
   }
+
   if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) {
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify([]));
   }
